@@ -15,7 +15,7 @@ const PostWidget = ({ categories, slug }) => {
       getRecentPosts().then((result) => setRealatedPosts(result));
     }
   }, [slug]);
-  console.log(realatedPosts);
+  console.log("post widget component", realatedPosts);
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-8 mb-8">

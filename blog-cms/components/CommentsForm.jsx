@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { submitComment } from "../services";
 
 const CommentsForm = ({ slug }) => {
   const [error, setError] = useState(false);
@@ -9,11 +10,48 @@ const CommentsForm = ({ slug }) => {
   const emailEl = useRef();
   const storeDataEl = useRef();
 
-  const handleCommentSubmission = () => {};
+  useEffect(() => {
+    nameEl.current.value = window.localStorage.getItem("name");
+    emailEl.current.value = window.localStorage.getItem("email");
+  }, []);
+
+  const handleCommentSubmission = () => {
+    setError(false);
+    const { value: comment } = commentEl.current;
+    const { value: name } = nameEl.current;
+    const { value: email } = emailEl.current;
+    const { checked: storeData } = storeDataEl.current;
+    if (!commentEl || !nameEl || !emailEl) {
+      setError(true);
+      return;
+    }
+    const commentObj = {
+      name,
+      email,
+      comment,
+      slug,
+    };
+    if (storeData) {
+      window.localStorage.setItem("name", name);
+      window.localStorage.setItem("email", email);
+    } else {
+      window.localStorage.removeItem("name", name);
+      window.localStorage.removeItem("email", email);
+    }
+    submitComment(commentObj).then((res) => {
+      setShowSuccessMessage(true);
+
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 3000);
+    });
+  };
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-8 pb-12 mb-8">
-      <h3 className="text-xl mb-8 font-semibold border-b pb-4"></h3>
+      <h3 className="text-xl mb-8 font-semibold border-b pb-4">
+        Liked this Article?
+      </h3>
       <div className="grid grid-cols-1 gap-4 mb-4">
         <textarea
           name="comment"
@@ -37,6 +75,23 @@ const CommentsForm = ({ slug }) => {
           name="email"
           className="py-2 px-4 outline-none w-full rounded-lg focus:ring -2 focus:ring-gray-200 bg-gray-200 text-gray-700"
         />
+      </div>
+      <div className="grid grid-cols-1 gap-4 mb-4">
+        <div>
+          <input
+            type="checkbox"
+            name="storeData"
+            ref={storeDataEl}
+            id="storeData"
+            value="true"
+          />
+          <label
+            className="text-gray-500 cursor-pointer ml-2"
+            htmlFor="storeData"
+          >
+            Save my name & Email for next time I comment
+          </label>
+        </div>
       </div>
       {error && <p className="text-xs text-red-600">All fields are required</p>}
       <div className="mt-8">

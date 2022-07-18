@@ -1,6 +1,5 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { getPostDetails, getPosts } from "../../services";
 import {
   PostDetail,
   Categories,
@@ -10,6 +9,7 @@ import {
   CommentsForm,
   Loader,
 } from "../../components";
+import { getPostDetails, getPosts } from "../../services";
 
 const PostDetails = ({ post }) => {
   const router = useRouter();
@@ -41,26 +41,22 @@ const PostDetails = ({ post }) => {
 
 export default PostDetails;
 
+// Fetch data at build time
 export async function getStaticProps({ params }) {
-  try {
-    const data = await getPostDetails(params.slug);
-
-    return {
-      props: { post: data },
-    };
-  } catch (error) {
-    console.error(error);
-  }
+  const data = await getPostDetails(params.slug);
+  return {
+    props: {
+      post: data,
+    },
+  };
 }
 
+// Specify dynamic routes to pre-render pages based on data.
+// The HTML is generated at build time and will be reused on each request.
 export async function getStaticPaths() {
-  try {
-    const posts = await getPosts();
-    return {
-      paths: posts.map(({ node: { slug } }) => ({ params: { slug } })),
-      fallback: true,
-    };
-  } catch (error) {
-    console.error(error);
-  }
+  const posts = await getPosts();
+  return {
+    paths: posts.map(({ node: { slug } }) => ({ params: { slug } })),
+    fallback: true,
+  };
 }

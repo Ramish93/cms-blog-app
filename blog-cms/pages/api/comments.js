@@ -31,10 +31,11 @@ export default async function comments(req, res) {
     }
   `;
 
-  try {
-    const result = await graphQLClient.request(query, req.body);
-    return res.status(200).send(result);
-  } catch (error) {
-    console.log(error);
-  }
+  const result = await graphQLClient.request(query, {
+    name: req.body.name,
+    email: req.body.email,
+    comment: req.body.comment,
+    slug: req.body.slug,
+  });
+  return res.status(200).send(result);
 }
